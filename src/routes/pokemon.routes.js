@@ -140,4 +140,14 @@ router.put("/pokemon/:id", async (req, res) => {
     }
 })
 
+router.get("/count", async (req, res) => {
+    try {
+        const cnt = await Pokemon.countDocuments();
+
+        res.status(200).json({cnt});
+    } catch (error) {
+        res.status(400).send({ message: error.message });
+    }
+})
+
 export default router;
