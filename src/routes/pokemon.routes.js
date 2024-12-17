@@ -3,7 +3,7 @@ import express from "express";
 import upload from "../middleware/multer.middlewares.js";
 import cloudinary from "../cloudinary.js";
 import fs from "fs";
-import Pokemon from "../models/pokemon.models.js"; // Import your Pokemon model
+import Pokemon from "../models/pokemon.models.js"; 
 
 const router = express.Router();
 
@@ -109,5 +109,35 @@ router.get("/pokemon/:id", async (req, res) => {
         res.status(500).send({ message: error.message });
     }
 });
+
+
+router.put("/pokemon/:id", async (req, res) => {
+    const { id } = req.params;
+    const { name, poke_id, type, height, weight, category, abilities, weakness } = req.body;
+
+    try {
+        const pokemon = await Pokemon.findOne({poke_id: id});
+
+        // If not found by poke_id, try to find by MongoDB _id
+        if (!pokemon) {
+            pokemon = await Pokemon.findById(id);
+        }
+
+        // If Pokémon is not found, return an error
+        if (!pokemon) {
+            return res.status(404).send({ message: "Pokémon not found" });
+        }
+
+        const updatedPokemon = await Pokemon.findOneAndUpdate(
+            { poke_id: id },
+            req.body,
+            { new: true }
+        );
+
+        res.status(200).json(updatedPokemon);
+    } catch (error) {
+        res.status(400).send({ message: error.message });
+    }
+})
 
 export default router;
